@@ -172,7 +172,7 @@ static struct display_info_t display = {
 int board_video_skip(void)
 {
 	int ret;
-
+#if 0
     int xres, yres, refresh;
     xres = getenv_ulong("hdmi_xres", 10, CONFIG_HDMI_XRES);
     yres = getenv_ulong("hdmi_yres", 10, CONFIG_HDMI_YRES);
@@ -197,7 +197,7 @@ int board_video_skip(void)
         display.mode.refresh = refresh;
         display.mode.pixclock = pixclock_calc;
     }
-
+#endif
     ret = ipuv3_fb_init(&display.mode, 0,
                 display.pixfmt);
     if (!ret) {

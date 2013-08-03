@@ -74,7 +74,7 @@ BIN_FILES-$(CONFIG_MX28) += mxsboot$(SFX)
 BIN_FILES-$(CONFIG_NETCONSOLE) += ncb$(SFX)
 BIN_FILES-$(CONFIG_SHA1_CHECK_UB_IMG) += ubsha1$(SFX)
 BIN_FILES-$(CONFIG_KIRKWOOD) += kwboot$(SFX)
-BIN_FILES-$(CONFIG_MX6) += imxboot$(SFX)
+#BIN_FILES-$(CONFIG_MX6) += imxboot$(SFX)
 
 # Source files which exist outside the tools directory
 EXT_OBJ_FILES-$(CONFIG_BUILD_ENVCRC) += common/env_embedded.o

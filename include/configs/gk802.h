@@ -21,7 +21,7 @@
 
 #define CONFIG_MACH_TYPE	3980
 #define CONFIG_MXC_UART_BASE	UART4_BASE
-#define CONFIG_CONSOLE_DEV		"ttymxc3"
+#define CONFIG_CONSOLE_DEV	"ttymxc3"
 #define PHYS_SDRAM_SIZE		(1u * 1024 * 1024 * 1024)
 
 
@@ -88,52 +88,62 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_FS_GENERIC
 #define CONFIG_DOS_PARTITION
+#define CONFIG_EFI_PARTITION
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_BAUDRATE                        115200
+#define CONFIG_BAUDRATE                115200
 
 /* Command definition */
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_BOOTZ
+#define CONFIG_SUPPORT_RAW_INITRD
 #undef CONFIG_CMD_IMLS
 
-#define CONFIG_BOOTDELAY               0
+#define CONFIG_BOOTDELAY               5
 #define CONFIG_PREBOOT
 
-#define CONFIG_LOADADDR                        0x10800000
+#define CONFIG_LOADADDR                0x10800000
 #define CONFIG_SYS_TEXT_BASE           0x27800000
 
 #define CONFIG_SYS_SKIP_ARM_RELOCATION
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"console=" CONFIG_CONSOLE_DEV "\0"
-
+	"console=" CONFIG_CONSOLE_DEV "\0" \
+	"bootscript=boot.scr\0" \
+	"uimage=uImage\0" \
+	"trymmcdev=1 0\0" \
+	"trymmcpart=2 1\0" \
+	"trymmcdir=/boot/ /\0" \
+	"tryusbpart=3 2 1\0" \
+	"tryusbdir=/boot/ /\0"
 
 #define CONFIG_BOOTCOMMAND                                      \
-"for disk in 1 0; do"                                           \
-"    if mmc dev ${disk}; then"                                  \
-"        setenv loaddev mmc ${disk};"                           \
-"        if load ${loaddev} ${loadaddr} /boot/boot.scr; then"   \
+"for mmcdev in ${trymmcdev}; do "                               \
+"for mmcpart in ${trymmcpart}; do "				\
+"for mmcdir in ${trymmcdir}; do "				\
+"    if mmc dev ${mmcdev}; then"                                \
+"        echo ===> Executing load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${mmcdir}${bootscript};" \
+"        if load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${mmcdir}${bootscript}; then"   \
 "            source;"                                           \
-"        fi;"                                                   \
-"        if load ${loaddev} ${loadaddr} /boot/uImage; then"     \
-"            bootm;"                                            \
 "        fi;"                                                   \
 "    fi;"                                                       \
 "done;"                                                         \
+"done;"                                                         \
+"done;"                                                         \
 "usb start;"                                                    \
-"setenv disk 0;"                                                \
-"while usb dev ${disk}; do"                                     \
-"    setenv loaddev usb ${disk};"                               \
-"    if load ${loaddev} ${loadaddr} /boot/boot.scr; then"       \
+"setenv usbdev 0;"                                              \
+"while usb dev ${usbdev}; do "                                  \
+"for usbpart in ${tryusbpart}; do "				\
+"for usbdir in ${tryusbdir}; do "				\
+"    echo ===> Executing load usb ${usbdev}:${usbpart} ${loadaddr} ${usbdir}${bootscript};" \
+"    if load ${usbdev}:${usbpart} ${loadaddr} ${usbdir}${bootscript}; then"       \
 "        source;"                                               \
 "    fi;"                                                       \
-"    if load ${loaddev} ${loadaddr} /boot/uImage; then"         \
-"        bootm;"                                                \
-"    fi;"                                                       \
-"    setexpr disk ${disk} + 1;"                                 \
+"    setexpr usbdev ${usbdev} + 1; "                             \
+"done;"                                                         \
+"done;"                                                         \
 "done;"                                                         \
 "echo No boot devices found."
 
